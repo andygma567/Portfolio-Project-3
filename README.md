@@ -3,7 +3,8 @@ Tensorflow 2 Object Detection API
 
 # Abstract
 
-We train an object detection model from the Tensorflow 2 Object Detection API on a public dataset of people wearing facemasks taken from the [Roboflow Public Datasets](https://public.roboflow.com/). 
+We train an object detection model from the Tensorflow 2 Object Detection API on a public dataset of people wearing facemasks taken from the [Roboflow Public Datasets](https://public.roboflow.com/). Specifically we use the dataset from this link [Mask Wearing Dataset
+](https://public.roboflow.com/object-detection/mask-wearing)
 
 Additionally, we evaluate the trained model on a validation dataset and a test dataset. We use Tensorboards to display the results of evaluation. 
 
