@@ -9,4 +9,4 @@ Additionally, we evaluate the trained model on a validation dataset and a test d
 
 Finally, we also use a trained model to do inference on photos taken from a webcam photos.  
 
-In this repo there is the dataset used (in a TFRecord format), two colab notebooks - one for training a model and one for performing inference with a webcam, a SavedModel file containing a trained model, and a .py script that is was made to replace a file from the TF2 OD source code for the goals of this project. 
+In this repo there are two colab notebooks - one for training a model and one for performing inference with a webcam, a SavedModel file containing a trained model, and a .py script that is was made to replace a file from the TF2 OD source code for the goals of this project. 
