@@ -1,0 +1,85 @@
+I'm very new to programming but I wanted to share something that I was trying to do because the original question also gives me trouble. 
+
+Let's say I already have a config file on my computer and I've compiled all of my TF2 Object Detection protos but now I want to change the preprocessing. I use python. 
+
+First, I'll get my config file as a python dictionary
+```
+from object_detection.utils import config_util
+
+# PATH_TO_MY_CONFIG_FILE can be whatever the path is to your config file 
+configs = config_util.get_configs_from_pipeline_file(PATH_TO_MY_CONFIG_FILE)
+```
+
+Next, I'd like to check what data augmentations / preprocessing I currently have. 
+```
+print(configs['train_config'].data_augmentation_options)
+print(type(configs['train_config'].data_augmentation_options[0]))
+```
+> [random_horizontal_flip {
+}
+, random_scale_crop_and_pad_to_square {
+  output_size: 512
+  scale_min: 0.10000000149011612
+  scale_max: 2.0
+}
+]
+
+> <class 'object_detection.protos.preprocessor_pb2.PreprocessingStep'>
+
+It looks to me like *configs['train_config'].data_augmentation_options* is a python list containing instances of the class *PreprocessingStep* that is from the file *preprocessor_pb2.py* 
+
+When I previously tried running code from the TF2 Object Detection github repo there was some code that compiled protos for me. The protocompiler took my preprocessor.proto file and created a new file from it called preprocessor_pb2.py that is now on my computer. In this python file there is a class called *PreprocessingStep*. 
+
+I will use this script to make a new preprocessing step for my configuration. 
+```
+from object_detection.protos import preprocessor_pb2
+
+# Construct a new PreprocessingStep object
+my_new_data_augmentation = preprocessor_pb2.PreprocessingStep()
+# I would like to randomly change some color images to gray with %20 probability
+my_new_data_augmentation.random_rgb_to_gray.probability = 0.2
+print(my_new_data_augmentation)
+```
+> random_rgb_to_gray {
+  probability: 0.20000000298023224
+}
+
+A PreprocessingStep step object has a lot of different fields. You can look inside the file *preprocessor_pb2.py* for a list of fields you can modify or you can look at the [preprocessor.proto on the TF2 OD Github][1] at the list of messages (These are the text in red). The messages are the names of the fields you can change. 
+
+Once you've selected a field to modify you can further set the optional paramaters. In my example 'probability' is the only parameter you can modify for the 'random_rgb_to_gray' preprocessing step (I think). 
+
+Also, I don't think you can set your PreprocessingStep object to have multiple preprocessing fields. For example, if I did 
+```
+my_new_data_augmentation.random_rgb_to_gray.probability = 0.2
+my_new_data_augmentation.random_adjust_hue.max_delta = 0.1
+print(my_new_data_augmentation)
+```
+> random_adjust_hue {
+  max_delta: 0.10000000149011612
+}
+
+things will just get overwritten. 
+
+I guess, now my preprocessing step is random_adjust_hue. I will go ahead and add this to my data augmentations now using list.append()
+
+```
+configs['train_config'].data_augmentation_options.append(my_new_data_augmentation)
+print(configs['train_config'].data_augmentation_options)
+```
+> [random_horizontal_flip {
+}
+, random_scale_crop_and_pad_to_square {
+  output_size: 512
+  scale_min: 0.10000000149011612
+  scale_max: 2.0
+}
+, random_adjust_hue {
+  max_delta: 0.10000000149011612
+}
+]
+
+Now I can save my configs using the usual config_util.create_pipeline_proto_from_configs() method. 
+
+Like I said I'm very new to programming and I don't know if this idea causes some bugs that I'm not aware of but I wanted to share this in case somebody else finds this helpful as a starting place to build on I guess. 
+
+  [1]: https://github.com/tensorflow/models/blob/master/research/object_detection/protos/preprocessor.proto
